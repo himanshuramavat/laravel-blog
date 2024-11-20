@@ -1,0 +1,40 @@
+name: Laravel CI
+
+on:
+  pull_request:
+    branches:
+      - master  # Target the master branch for PR
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Check out the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Set up PHP
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2' # Adjust PHP version as per your project
+        extensions: mbstring, bcmath
+        tools: composer, phpstan, phpunit
+        coverage: none
+
+    # Install dependencies
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    # Run PHPStan
+    - name: Run PHPStan
+      run: vendor/bin/phpstan analyse --memory-limit=1G
+
+    # Run PHPUnit
+    - name: Run PHPUnit tests
+      run: vendor/bin/phpunit
+
+    # Run Linters (PHP CS Fixer or Laravel Pint)
+    - name: Run Laravel Pint
+      run: ./vendor/bin/pint
